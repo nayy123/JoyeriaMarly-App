@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: "./marly-handmade-frontend"
+    ports:
+      - "5173:5173"
+    networks:
+      - app-networks
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: "./marly-handmade-backend"
+    ports:
+      - "8080:8080"
+    networks:
+      - app-networks
+    environment:
+      - URL_BD=${URL_BD}
+      - USER_BD=${USER_BD}
+      - PASSWORD_BD=${PASSWORD_BD}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - KEY_SEND_CORREO=4e422f467cea2dcd328903e1969c7ebae7680cb9946f73b6269e31d76890ef37
+
+networks:
+  app-networks:
+    driver: bridge
