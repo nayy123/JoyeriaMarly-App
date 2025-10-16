@@ -2,143 +2,242 @@ package com.Proyecto.Joyeria_Marly.domain.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.Proyecto.Joyeria_Marly.domain.dto.Cart;
 import com.Proyecto.Joyeria_Marly.domain.dto.CartItem;
-import com.Proyecto.Joyeria_Marly.domain.dto.Product;
+import com.Proyecto.Joyeria_Marly.persistance.entity.*;
+import com.Proyecto.Joyeria_Marly.persistance.crud.*;
+import com.Proyecto.Joyeria_Marly.domain.service.ProductoEntityService;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class CartService {
-    
+
     @Autowired
-    private ProductService productService;
-    
-    // Simulación de carritos en memoria (en producción usar Redis o base de datos)
-    private final ConcurrentHashMap<Integer, Cart> userCarts = new ConcurrentHashMap<>();
-    
+    private PedidosCrudRepository pedidosRepository;
+
+    @Autowired
+    private DetallePedidosCrudRepository detallePedidosRepository;
+
+    @Autowired
+    private EstadoPedidosCrudRepository estadoPedidosRepository;
+
+    @Autowired
+    private UsuariosCrudRepository usuariosRepository;
+
+    @Autowired
+    private ProductoEntityService productoEntityService;
+
     /**
-     * Obtiene el carrito de un usuario
-     * @param userId ID del usuario
-     * @return Carrito del usuario
+     * Obtener o crear carrito (Pedido con estado "Pendiente")
      */
     public Cart getCart(Integer userId) {
-        return userCarts.computeIfAbsent(userId, id -> new Cart(userId));
+        Usuarios usuario = usuariosRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        EstadoPedidos estadoPendiente = estadoPedidosRepository.findByNombreEstado("Pendiente")
+                .orElseThrow(() -> new IllegalArgumentException("Estado 'Pendiente' no configurado en la base de datos"));
+
+        // Buscar carrito existente o crear uno nuevo
+        Pedidos carrito = pedidosRepository.findByUsuarioClienteAndEstado(usuario, estadoPendiente)
+                .orElseGet(() -> {
+                    Pedidos nuevoCarrito = new Pedidos();
+                    nuevoCarrito.setUsuarioCliente(usuario);
+                    nuevoCarrito.setEstado(estadoPendiente);
+                    nuevoCarrito.setMontoTotal(BigDecimal.ZERO);
+                    return pedidosRepository.save(nuevoCarrito);
+                });
+
+        return convertToCart(carrito);
     }
-    
+
     /**
-     * Agrega un producto al carrito
-     * @param userId ID del usuario
-     * @param productId ID del producto
-     * @param quantity Cantidad a agregar
-     * @return Carrito actualizado
-     * @throws IllegalArgumentException si el producto no existe o no hay stock
+     * Agregar producto al carrito
      */
     public Cart addToCart(Integer userId, Integer productId, Integer quantity) {
-        // Validar que el producto exista
-        Product product = productService.getProductDetail(productId);
-        
-        // Validar que haya stock suficiente
-        if (!productService.hasStock(productId, quantity)) {
+        // Validaciones
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor a 0");
+        }
+
+        if (!productoEntityService.hasStock(productId, quantity)) {
             throw new IllegalArgumentException("Stock insuficiente");
         }
-        
-        Cart cart = getCart(userId);
-        
+
+        // Obtener entidades
+        Usuarios usuario = usuariosRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        Productos producto = productoEntityService.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+
+        EstadoPedidos estadoPendiente = estadoPedidosRepository.findByNombreEstado("Pendiente")
+                .orElseThrow(() -> new IllegalArgumentException("Estado 'Pendiente' no configurado"));
+
+        // Obtener o crear carrito
+        Pedidos carrito = pedidosRepository.findByUsuarioClienteAndEstado(usuario, estadoPendiente)
+                .orElseGet(() -> {
+                    Pedidos nuevoCarrito = new Pedidos();
+                    nuevoCarrito.setUsuarioCliente(usuario);
+                    nuevoCarrito.setEstado(estadoPendiente);
+                    nuevoCarrito.setMontoTotal(BigDecimal.ZERO);
+                    return pedidosRepository.save(nuevoCarrito);
+                });
+
         // Buscar si el producto ya está en el carrito
-        Optional<CartItem> existingItem = cart.getItems().stream()
-                .filter(item -> item.getProductId().equals(productId))
-                .findFirst();
-        
-        if (existingItem.isPresent()) {
-            // Si ya existe, aumentar la cantidad
-            CartItem item = existingItem.get();
-            int newQuantity = item.getQuantity() + quantity;
-            
-            // Validar stock para la nueva cantidad
-            if (!productService.hasStock(productId, newQuantity)) {
+        Optional<DetallePedidos> detalleExistente = detallePedidosRepository.findByPedidoAndProducto(carrito, producto);
+
+        if (detalleExistente.isPresent()) {
+            // Actualizar cantidad existente
+            DetallePedidos detalle = detalleExistente.get();
+            int nuevaCantidad = detalle.getCantidad() + quantity;
+
+            if (!productoEntityService.hasStock(productId, nuevaCantidad)) {
                 throw new IllegalArgumentException("Stock insuficiente para la cantidad solicitada");
             }
-            
-            item.setQuantity(newQuantity);
+
+            detalle.setCantidad(nuevaCantidad);
+            detalle.setSubtotal(producto.getPrecio().multiply(BigDecimal.valueOf(nuevaCantidad)));
+            detallePedidosRepository.save(detalle);
         } else {
-            // Si no existe, crear nuevo item
-            CartItem newItem = new CartItem();
-            newItem.setProductId(productId);
-            newItem.setProductName(product.getName());
-            newItem.setPrice(product.getPrice());
-            newItem.setQuantity(quantity);
-            newItem.setImageUrl(product.getImageUrl());
-            
-            cart.addItem(newItem);
+            // Crear nuevo detalle
+            DetallePedidos nuevoDetalle = new DetallePedidos();
+            nuevoDetalle.setPedido(carrito);
+            nuevoDetalle.setProducto(producto);
+            nuevoDetalle.setCantidad(quantity);
+            nuevoDetalle.setPrecioUnitario(producto.getPrecio());
+            nuevoDetalle.setSubtotal(producto.getPrecio().multiply(BigDecimal.valueOf(quantity)));
+            detallePedidosRepository.save(nuevoDetalle);
         }
-        
-        return cart;
+
+        // Actualizar monto total del carrito
+        actualizarMontoTotalCarrito(carrito.getIdPedido());
+
+        return getCart(userId);
     }
-    
+
     /**
-     * Actualiza la cantidad de un producto en el carrito
-     * @param userId ID del usuario
-     * @param productId ID del producto
-     * @param quantity Nueva cantidad
-     * @return Carrito actualizado
-     * @throws IllegalArgumentException si no hay stock suficiente
+     * Actualizar cantidad en el carrito
      */
     public Cart updateCartItem(Integer userId, Integer productId, Integer quantity) {
-        Cart cart = getCart(userId);
-        
-        CartItem item = cart.getItems().stream()
-                .filter(i -> i.getProductId().equals(productId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado en el carrito"));
-        
-        // Si la cantidad es 0 o negativa, remover el item
-        if (quantity <= 0) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("La cantidad no puede ser negativa");
+        }
+
+        if (quantity == 0) {
             return removeFromCart(userId, productId);
         }
-        
-        // Validar stock
-        if (!productService.hasStock(productId, quantity)) {
+
+        if (!productoEntityService.hasStock(productId, quantity)) {
             throw new IllegalArgumentException("Stock insuficiente");
         }
-        
-        item.setQuantity(quantity);
-        
-        return cart;
+
+        Usuarios usuario = usuariosRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        Productos producto = productoEntityService.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+
+        EstadoPedidos estadoPendiente = estadoPedidosRepository.findByNombreEstado("Pendiente")
+                .orElseThrow(() -> new IllegalArgumentException("Estado 'Pendiente' no configurado"));
+
+        Pedidos carrito = pedidosRepository.findByUsuarioClienteAndEstado(usuario, estadoPendiente)
+                .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado"));
+
+        DetallePedidos detalle = detallePedidosRepository.findByPedidoAndProducto(carrito, producto)
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado en el carrito"));
+
+        detalle.setCantidad(quantity);
+        detalle.setSubtotal(producto.getPrecio().multiply(BigDecimal.valueOf(quantity)));
+        detallePedidosRepository.save(detalle);
+
+        actualizarMontoTotalCarrito(carrito.getIdPedido());
+
+        return getCart(userId);
     }
-    
+
     /**
-     * Remueve un producto del carrito
-     * @param userId ID del usuario
-     * @param productId ID del producto a remover
-     * @return Carrito actualizado
+     * Eliminar producto del carrito
      */
     public Cart removeFromCart(Integer userId, Integer productId) {
-        Cart cart = getCart(userId);
-        cart.removeItem(productId);
-        return cart;
+        Usuarios usuario = usuariosRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        Productos producto = productoEntityService.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+
+        EstadoPedidos estadoPendiente = estadoPedidosRepository.findByNombreEstado("Pendiente")
+                .orElseThrow(() -> new IllegalArgumentException("Estado 'Pendiente' no configurado"));
+
+        Pedidos carrito = pedidosRepository.findByUsuarioClienteAndEstado(usuario, estadoPendiente)
+                .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado"));
+
+        detallePedidosRepository.deleteByPedidoAndProducto(carrito.getIdPedido(), productId);
+
+        actualizarMontoTotalCarrito(carrito.getIdPedido());
+
+        return getCart(userId);
     }
-    
+
     /**
-     * Vacía el carrito de un usuario
-     * @param userId ID del usuario
-     * @return Carrito vacío
+     * Vaciar carrito
      */
     public Cart clearCart(Integer userId) {
-        Cart cart = getCart(userId);
-        cart.clear();
-        return cart;
+        Usuarios usuario = usuariosRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        EstadoPedidos estadoPendiente = estadoPedidosRepository.findByNombreEstado("Pendiente")
+                .orElseThrow(() -> new IllegalArgumentException("Estado 'Pendiente' no configurado"));
+
+        Pedidos carrito = pedidosRepository.findByUsuarioClienteAndEstado(usuario, estadoPendiente)
+                .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado"));
+
+        detallePedidosRepository.deleteByPedidoId(carrito.getIdPedido());
+
+        actualizarMontoTotalCarrito(carrito.getIdPedido());
+
+        return getCart(userId);
     }
-    
+
     /**
-     * Obtiene la cantidad de items en el carrito
-     * @param userId ID del usuario
-     * @return Cantidad total de items
+     * Obtener cantidad de items en el carrito
      */
     public int getCartItemCount(Integer userId) {
         Cart cart = getCart(userId);
         return cart.getTotalItems();
+    }
+
+    /**
+     * Métodos auxiliares privados
+     */
+    private void actualizarMontoTotalCarrito(Integer pedidoId) {
+        BigDecimal total = detallePedidosRepository.getTotalByPedido(pedidoId);
+        Pedidos carrito = pedidosRepository.findById(pedidoId)
+                .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado"));
+        carrito.setMontoTotal(total);
+        pedidosRepository.save(carrito);
+    }
+
+    private Cart convertToCart(Pedidos pedido) {
+        Cart cart = new Cart(pedido.getUsuarioCliente().getIdUsuario());
+
+        // Obtener detalles del pedido
+        detallePedidosRepository.findByPedido(pedido).forEach(detalle -> {
+            CartItem item = new CartItem();
+            item.setProductId(detalle.getProducto().getIdProducto());
+            item.setProductName(detalle.getProducto().getNombreProducto());
+            item.setPrice(detalle.getPrecioUnitario());
+            item.setQuantity(detalle.getCantidad());
+            item.setSubtotal(detalle.getSubtotal());
+            item.setImageUrl(detalle.getProducto().getImagenUrl());
+
+            cart.addItem(item);
+        });
+
+        return cart;
     }
 }

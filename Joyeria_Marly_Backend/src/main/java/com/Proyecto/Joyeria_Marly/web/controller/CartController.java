@@ -114,10 +114,10 @@ public class CartController {
     @PutMapping("/update")
     public ResponseEntity<Map<String, Object>> updateCartItem(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody Map<String, Integer> request) {
+            @RequestBody Map<String, Integer> request) {  // ← ¿Está usando @RequestBody?
         Map<String, Object> response = new HashMap<>();
         
-        try {
+        try {b
             Integer userId = getUserIdFromToken(authHeader);
             
             if (userId == null) {

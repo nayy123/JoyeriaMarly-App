@@ -5,6 +5,8 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "pedido")
@@ -77,7 +79,20 @@ public class Pedidos {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_estado", nullable = false)
     private EstadoPedidos estado;
-    
+
+    // RELACIÓN ONE-TO-MANY CON DETALLEPEDIDOS
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<DetallePedidos> detallesPedidos = new ArrayList<>();
+
+    // En Pedidos.java
+    public List<DetallePedidos> getDetallesPedidos() {
+        return detallesPedidos;
+    }
+
+    public void setDetallesPedidos(List<DetallePedidos> detallesPedidos) {
+        this.detallesPedidos = detallesPedidos;
+    }
+
     // toString
     @Override
     public String toString() {
