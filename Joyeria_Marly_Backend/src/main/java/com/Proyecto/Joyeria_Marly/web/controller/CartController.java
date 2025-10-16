@@ -117,7 +117,7 @@ public class CartController {
             @RequestBody Map<String, Integer> request) {  // ← ¿Está usando @RequestBody?
         Map<String, Object> response = new HashMap<>();
         
-        try {b
+        try {
             Integer userId = getUserIdFromToken(authHeader);
             
             if (userId == null) {
