@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import { Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/Landing";
 import CartPage from "./pages/Cart";
@@ -10,6 +10,7 @@ import CollectionDetail from "./pages/ColletionDetail";
 import RecoverPassword from "./pages/RecoverPassword";
 import Product from "./pages/Product";
 import ConfirmNewPassword from "./pages/ConfirnNewPassword"
+import DetalleProducto from './pages/DetalleProducto';
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/recover-password" element={<RecoverPassword />} /> 
         <Route path="/product" element={<Product />} />
         <Route path="/confirm-new-password/:token" element={<ConfirmNewPassword />} />
+        <Route path="/product/:collectionType/:productId" element={<DetalleProducto />} />
       </Routes>
     </>
   );
