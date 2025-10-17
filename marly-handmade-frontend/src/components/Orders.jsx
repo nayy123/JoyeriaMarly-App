@@ -9,7 +9,7 @@ function OrderCard({
   quantity = 1,
   onAdd,
   onDelete,
-  onQuantityChange // Nueva prop para cambiar cantidad
+  onQuantityChange 
 }) {
   const total = price * quantity;
 

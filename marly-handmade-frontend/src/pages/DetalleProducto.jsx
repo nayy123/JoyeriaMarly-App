@@ -10,13 +10,36 @@ const DetalleProducto = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [activeAccordion, setActiveAccordion] = useState(null);
 
-  // Cargar producto desde localStorage
+  // Cargar producto desde el backend
   useEffect(() => {
-    const loadProduct = () => {
+    const loadProduct = async () => {
+      try {
+        // Buscar producto en todas las colecciones del backend
+        const response = await fetch(`http://localhost:5000/api/productos/${productId}`);
+        
+        if (response.ok) {
+          const result = await response.json(); // ← Cambiado aquí
+          setProduct(result.producto); // ← Y aquí
+          
+          // Cargar productos relacionados de la misma colección
+          const relatedResponse = await fetch(`http://localhost:5000/api/productos?coleccion=${collectionType}`);
+          if (relatedResponse.ok) {
+            const relatedResult = await relatedResponse.json(); // ← Cambiado aquí
+            loadRelatedProducts(result.producto, relatedResult.productos); // ← Y aquí
+          }
+        } else {
+          loadProductFromLocalStorage();
+        }
+      } catch (error) {
+        console.log('Error cargando producto del backend:', error);
+        loadProductFromLocalStorage();
+      }
+    };
+
+    const loadProductFromLocalStorage = () => {
       let foundProduct = null;
       let allProducts = [];
 
@@ -33,8 +56,7 @@ const DetalleProducto = () => {
         if (storedProducts) {
           const products = JSON.parse(storedProducts);
           const product = products.find(p => 
-            p.idProducto == productId ||  // Cambiado a == para comparar string con número
-            p.id == productId
+            p.idProducto == productId || p.id == productId
           );
           if (product) {
             foundProduct = product;
@@ -51,7 +73,7 @@ const DetalleProducto = () => {
     };
 
     loadProduct();
-  }, [productId]);
+  }, [productId, collectionType]);
 
   // Cargar productos relacionados
   const loadRelatedProducts = (currentProduct, allProducts) => {
@@ -75,17 +97,12 @@ const DetalleProducto = () => {
     }
   };
 
-  // Manejar favoritos
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-  };
-
   // Manejar accordion
   const toggleAccordion = (index) => {
     setActiveAccordion(activeAccordion === index ? null : index);
   };
 
-  // Agregar al carrito - MEJORADO
+  // Agregar al carrito - SOLO BACKEND
   const agregarAlCarrito = async () => {
     if (!product) return;
 
@@ -101,7 +118,7 @@ const DetalleProducto = () => {
     console.log('Enviando al carrito:', cartItem);
 
     try {
-      // Enviar al backend PRIMERO
+      // Enviar SOLO al backend
       const response = await fetch('http://localhost:5000/api/carrito/agregar', {
         method: 'POST',
         headers: {
@@ -117,39 +134,11 @@ const DetalleProducto = () => {
       const result = await response.json();
       console.log('Producto agregado al backend:', result);
 
-      // Guardar en localStorage también
-      const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
-      const itemExistente = carrito.findIndex(item => 
-        item.id === cartItem.id && item.coleccion === cartItem.coleccion
-      );
-
-      if (itemExistente !== -1) {
-        carrito[itemExistente].cantidad += quantity;
-      } else {
-        carrito.push(cartItem);
-      }
-
-      localStorage.setItem('carrito', JSON.stringify(carrito));
-
       alert('Producto agregado al carrito exitosamente');
 
     } catch (error) {
-      console.log('Error conectando con el backend, guardando solo en localStorage:', error.message);
-      
-      // Fallback: guardar solo en localStorage
-      const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
-      const itemExistente = carrito.findIndex(item => 
-        item.id === cartItem.id && item.coleccion === cartItem.coleccion
-      );
-
-      if (itemExistente !== -1) {
-        carrito[itemExistente].cantidad += quantity;
-      } else {
-        carrito.push(cartItem);
-      }
-
-      localStorage.setItem('carrito', JSON.stringify(carrito));
-      alert('Producto agregado al carrito (modo offline)');
+      console.log('Error conectando con el backend:', error.message);
+      alert('Error al agregar producto al carrito. Intente nuevamente.');
     }
   };
 
@@ -213,12 +202,6 @@ const DetalleProducto = () => {
                 onError={(e) => e.target.src = '/images/placeholder-product.jpg'}
               />
             </div>
-            <button 
-              className={`favorite-btn ${isFavorite ? 'active' : ''}`}
-              onClick={toggleFavorite}
-            >
-              <i className={`fas fa-heart ${isFavorite ? 'fas' : 'far'}`}></i>
-            </button>
           </div>
 
           {/* Información del producto */}
