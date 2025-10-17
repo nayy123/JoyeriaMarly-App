@@ -1,88 +1,109 @@
-import { useState, useEffect } from "react";
-import { createContext } from "react";
+import { useState, useEffect, createContext } from 'react'
+import { authAPI } from '../services/api'
 
 const AuthContext = createContext();
-const API_URL = "http://localhost:8080/auth/";
 
 function AuthProviderWrapper(props) {
-  const [token, setToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("authToken") || null);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!token);
 
-  // Monitorear cuando el token cambie en el contexto
+  // Verificar el token al cargar la aplicación
   useEffect(() => {
     if (token) {
-      console.log("Token actualizado en contexto:", token.token);
+      validateToken();
     }
-  }, [token]);
+  }, []);
 
-  const login = async (data) => {
+  const validateToken = async () => {
     try {
-      const response = await fetch(`${API_URL}login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error("Error en el login");
+      const data = await authAPI.validateToken(token);
+      if (data.valid) {
+        setUser(data.user);
+        setIsLoggedIn(true);
+      } else {
+        logout();
       }
-      const result = await response.json();
-      setToken(result);
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.error("Error validating token:", error);
+      logout();
     }
   };
 
-  const register = async (data) => {
+  const login = async (loginData) => {
+    setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error("Error en el login");
+      // El backend espera { email, password } pero el frontend manda { username, password }
+      // Ajustamos para usar email como username
+      const response = await authAPI.login(loginData.username, loginData.password);
+      
+      if (response.success) {
+        setToken(response.token);
+        setUser(response.user);
+        setIsLoggedIn(true);
+        localStorage.setItem("authToken", response.token);
+        
+        // Marcar que el usuario acaba de iniciar sesión para mostrar el banner
+        sessionStorage.setItem("justLoggedIn", "true");
+        
+        return true;
+      } else {
+        return false;
       }
-      console.log(response);
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.error("Login error:", error);
+      return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const forgotPassword = async (data) => {
-    try {
-      const response = await fetch(`${API_URL}forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error("Error en el forgot password");
-      }
-      const result = await response.json();
-      console.log("Token recibido:", result);
-    } catch (e) {
-      console.log(e);
+  const logout = () => {
+    if (token) {
+      authAPI.logout(token).catch(console.error);
     }
+    setToken(null);
+    setUser(null);
+    setIsLoggedIn(false);
+    localStorage.removeItem("authToken");
   };
 
-  const updatePassword = async (data) => {
+  const register = async (registerData) => {
+    setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}update-password`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error("Error en el login");
+      console.log('📝 Datos enviados al registro:', registerData);
+      const response = await authAPI.register(registerData);
+      console.log('📥 Respuesta del registro:', response);
+      
+      if (response.success) {
+        // El backend solo devuelve el usuario, no un token
+        // Después del registro, hacer login automático
+        sessionStorage.setItem("justLoggedIn", "true");
+        const loginSuccess = await login({ username: registerData.email, password: registerData.password });
+        return loginSuccess;
       }
-      console.log(response);
-    } catch (e) {
-      console.log(e);
+      return false;
+    } catch (error) {
+      console.error("Register error:", error);
+      return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <AuthContext.Provider
-      value={{ token, login, register, forgotPassword, updatePassword }}
+      value={{
+        isLoading,
+        user,
+        token,
+        isLoggedIn,
+        login,
+        logout,
+        register,
+        validateToken,
+      }}
     >
       {props.children}
     </AuthContext.Provider>

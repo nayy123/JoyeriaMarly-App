@@ -1,26 +1,27 @@
 import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { AuthContext } from "../contexts/Auth.context";
 
 export default function Login() {
-  const { login, token } = useContext(AuthContext);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const { login, isLoading } = useContext(AuthContext);
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => setFormData({ ...formData, [e.target.id]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login({ username, password });
-
-    if (!success) {
-      setErrorMessage("Usuario o contraseña incorrectos.");
-      setPassword("");
-    } else {
-      setErrorMessage("");
+    setErrorMessage("");
+    const success = await login(formData);
+    if (success) navigate("/");
+    else {
+      setErrorMessage("Email o contraseña incorrectos.");
+      setFormData((prev) => ({ ...prev, password: "" }));
     }
   };
 
@@ -34,14 +35,13 @@ export default function Login() {
           <form className="login-form" onSubmit={handleSubmit}>
             <div className="form-group-login">
               <input
-                id="email"
+                id="username"
                 type="text"
                 placeholder="Email"
                 required
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                }}
+                value={formData.username}
+                onChange={handleChange}
+                disabled={isLoading}
               />
             </div>
 
@@ -52,32 +52,28 @@ export default function Login() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   required
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                  }}
+                  value={formData.password}
+                  onChange={handleChange}
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   className="toggle-password-login"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
                 >
-                  <i
-                    className={`fa-solid ${
-                      showPassword ? "fa-eye" : "fa-eye-slash"
-                    }`}
-                  ></i>
+                  <i className={`fa-solid ${showPassword ? "fa-eye" : "fa-eye-slash"}`}></i>
                 </button>
               </div>
-              <p className="error-message"> {errorMessage || "\u00A0"}</p>
+              <p className="error-message">{errorMessage || "\u00A0"}</p>
             </div>
 
             <div className="form-links">
               <Link to="/recover-password">Forgot your password?</Link>
             </div>
 
-            <button type="submit" className="login-btn">
-              SIGN IN
+            <button type="submit" className="login-btn" disabled={isLoading}>
+              {isLoading ? "CARGANDO..." : "SIGN IN"}
             </button>
           </form>
 
@@ -91,3 +87,4 @@ export default function Login() {
     </>
   );
 }
+

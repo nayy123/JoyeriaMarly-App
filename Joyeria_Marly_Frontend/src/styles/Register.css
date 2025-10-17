@@ -22,9 +22,9 @@
   text-align: center;
   font-size: 36px;
   font-weight: bold;
-  color: #040f2f;
+  color: #040F2F;
   margin-bottom: 40px;
-  font-family: "Irian Serif", serif;
+  font-family: 'Irian Serif', serif;
 }
 
 /* Formularios */
@@ -71,7 +71,7 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   margin-top: 20px;
   transition: background-color 0.3s ease;
 }
@@ -89,9 +89,9 @@
 
 .form-links a {
   font-size: 24px;
-  color: #1b2a40;
+  color: #1B2A40;
   text-decoration: none;
-  font-family: "Irian Serif", serif;
+  font-family: 'Irian Serif', serif;
   font-style: italic;
   transition: text-decoration 0.3s ease;
 }
