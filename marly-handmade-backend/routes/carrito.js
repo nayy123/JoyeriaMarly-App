@@ -2,203 +2,124 @@
 const express = require('express');
 const router = express.Router();
 
-// Simulación de base de datos en memoria
+// Carrito en memoria
 let carrito = [];
 
-// Middleware para logging
+// Middleware de logging
 router.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`, req.body);
   next();
 });
 
-// AGREGAR PRODUCTO AL CARRITO
-router.post('/agregar', (req, res) => {
-  try {
-    const { id, nombre, precio, imagen, cantidad, coleccion } = req.body;
-    
-    console.log('Datos recibidos para agregar al carrito:', req.body);
-    
-    // Validaciones básicas
-    if (!id || !nombre || !precio || !cantidad) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Datos del producto incompletos' 
-      });
-    }
-
-    // Buscar si el producto ya existe en el carrito
-    const itemExistenteIndex = carrito.findIndex(item => 
-      item.id == id && item.coleccion === coleccion
-    );
-
-    if (itemExistenteIndex !== -1) {
-      // Si existe, actualizar la cantidad
-      carrito[itemExistenteIndex].cantidad += parseInt(cantidad);
-      carrito[itemExistenteIndex].fechaActualizado = new Date().toISOString();
-    } else {
-      // Si no existe, agregar nuevo item
-      carrito.push({
-        id: id,
-        nombre: nombre,
-        precio: parseFloat(precio),
-        imagen: imagen || '/placeholder-product.jpg',
-        cantidad: parseInt(cantidad),
-        coleccion: coleccion || 'general',
-        fechaAgregado: new Date().toISOString(),
-        fechaActualizado: new Date().toISOString()
-      });
-    }
-
-    // Respuesta exitosa
-    res.json({ 
-      success: true, 
-      message: 'Producto agregado al carrito exitosamente',
-      carrito: carrito,
-      totalItems: carrito.reduce((total, item) => total + item.cantidad, 0),
-      totalPrecio: carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0)
-    });
-
-  } catch (error) {
-    console.error('Error al agregar al carrito:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Error interno del servidor al agregar producto' 
-    });
-  }
-});
-
-// OBTENER CARRITO COMPLETO
+// Obtener carrito completo
 router.get('/', (req, res) => {
-  try {
-    const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
-    const totalPrecio = carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0);
+  const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
+  const totalPrecio = carrito.reduce((total, item) => total + item.precio * item.cantidad, 0);
 
-    res.json({ 
-      success: true, 
-      carrito: carrito,
-      totalItems: totalItems,
-      totalPrecio: totalPrecio
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      error: 'Error al obtener el carrito' 
-    });
-  }
+  res.json({
+    success: true,
+    carrito,
+    totalItems,
+    totalPrecio,
+  });
 });
 
-// ACTUALIZAR CANTIDAD DE PRODUCTO - CORREGIDO
+// Agregar producto
+router.post('/agregar', (req, res) => {
+  const { id, nombre, precio, imagen, cantidad, coleccion } = req.body;
+
+  if (!id || !nombre || !precio || !cantidad) {
+    return res.status(400).json({ success: false, error: 'Datos del producto incompletos' });
+  }
+
+  const itemExistente = carrito.find(
+    (item) => item.id == id && item.coleccion === coleccion
+  );
+
+  if (itemExistente) {
+    itemExistente.cantidad += parseInt(cantidad);
+  } else {
+    carrito.push({
+      id,
+      nombre,
+      precio: parseFloat(precio),
+      imagen: imagen || '/placeholder-product.jpg',
+      cantidad: parseInt(cantidad),
+      coleccion: coleccion || 'general',
+    });
+  }
+
+  res.json({ success: true, message: 'Producto agregado', carrito });
+});
+
+// Actualizar cantidad
 router.put('/actualizar/:id', (req, res) => {
-  try {
-    const { id } = req.params;
-    const { cantidad } = req.body;
-    const coleccion = req.body.coleccion || req.query.coleccion;
+  const { id } = req.params;
+  const { cantidad, coleccion } = req.body;
 
-    console.log('Actualizar producto - ID:', id, 'Cantidad:', cantidad, 'Colección:', coleccion);
+  const item = carrito.find((i) => i.id == id && i.coleccion === coleccion);
+  if (!item) return res.status(404).json({ success: false, error: 'Producto no encontrado' });
 
-    if (!cantidad || cantidad < 1) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'La cantidad debe ser al menos 1' 
-      });
-    }
-
-    if (!coleccion) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Se requiere el parámetro coleccion' 
-      });
-    }
-
-    const itemIndex = carrito.findIndex(item => 
-      item.id == id && item.coleccion === coleccion
-    );
-
-    if (itemIndex === -1) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'Producto no encontrado en el carrito' 
-      });
-    }
-
-    carrito[itemIndex].cantidad = parseInt(cantidad);
-    carrito[itemIndex].fechaActualizado = new Date().toISOString();
-    
-    res.json({ 
-      success: true, 
-      message: 'Cantidad actualizada exitosamente',
-      item: carrito[itemIndex],
-      carrito: carrito
-    });
-
-  } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
-    });
-  }
+  item.cantidad = parseInt(cantidad);
+  res.json({ success: true, carrito });
 });
 
-// ELIMINAR PRODUCTO DEL CARRITO - CORREGIDO
+// Eliminar producto
 router.delete('/eliminar/:id', (req, res) => {
-  try {
-    const { id } = req.params;
-    const coleccion = req.body.coleccion || req.query.coleccion;
+  const { id } = req.params;
+  const { coleccion } = req.body;
 
-    console.log('Eliminar producto - ID:', id, 'Colección:', coleccion);
-
-    if (!coleccion) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Se requiere el parámetro coleccion' 
-      });
-    }
-
-    const itemIndex = carrito.findIndex(item => 
-      item.id == id && item.coleccion === coleccion
-    );
-
-    if (itemIndex === -1) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'Producto no encontrado en el carrito' 
-      });
-    }
-
-    const productoEliminado = carrito.splice(itemIndex, 1)[0];
-    
-    res.json({ 
-      success: true, 
-      message: 'Producto eliminado del carrito exitosamente',
-      productoEliminado: productoEliminado,
-      carrito: carrito
-    });
-
-  } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
-    });
-  }
+  carrito = carrito.filter((i) => !(i.id == id && i.coleccion === coleccion));
+  res.json({ success: true, message: 'Producto eliminado', carrito });
 });
 
-// VACIAR CARRITO COMPLETO
+// Vaciar carrito
 router.delete('/vaciar', (req, res) => {
-  try {
-    const carritoVaciado = [...carrito];
-    carrito = [];
-    
-    res.json({ 
-      success: true, 
-      message: 'Carrito vaciado exitosamente',
-      carritoVaciado: carritoVaciado
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
-    });
+  carrito = [];
+  res.json({ success: true, message: 'Carrito vaciado', carrito });
+});
+
+// 🔥 Procesar compra: descuenta stock y vacía carrito
+router.post('/procesar-compra', (req, res) => {
+  const { carrito: carritoCliente } = req.body;
+  const db = req.app.get('db');
+
+  if (!Array.isArray(carritoCliente) || carritoCliente.length === 0) {
+    return res.status(400).json({ success: false, error: 'El carrito está vacío' });
   }
+
+  const errores = [];
+
+  const operaciones = carritoCliente.map((item) => {
+    return new Promise((resolve, reject) => {
+      const query = `
+        UPDATE Producto 
+        SET stock = stock - ? 
+        WHERE id_producto = ? AND stock >= ?
+      `;
+      db.query(query, [item.cantidad, item.id, item.cantidad], (err, results) => {
+        if (err) return reject(err);
+        if (results.affectedRows === 0) {
+          errores.push(`Stock insuficiente para producto ID ${item.id}`);
+        }
+        resolve();
+      });
+    });
+  });
+
+  Promise.all(operaciones)
+    .then(() => {
+      if (errores.length > 0) {
+        return res.status(400).json({ success: false, errores });
+      }
+
+      carrito = []; // limpiar carrito global
+      res.json({ success: true, message: 'Compra procesada y stock actualizado' });
+    })
+    .catch((error) => {
+      console.error('Error al procesar compra:', error);
+      res.status(500).json({ success: false, error: 'Error interno al procesar la compra' });
+    });
 });
 
 module.exports = router;

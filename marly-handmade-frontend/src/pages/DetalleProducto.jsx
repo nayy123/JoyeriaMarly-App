@@ -17,18 +17,18 @@ const DetalleProducto = () => {
   useEffect(() => {
     const loadProduct = async () => {
       try {
-        // Buscar producto en todas las colecciones del backend
-        const response = await fetch(`http://localhost:5000/api/productos/${productId}`);
+        
+        const response = await fetch(`http://localhost:3000/api/productos/${productId}`);
         
         if (response.ok) {
-          const result = await response.json(); // ← Cambiado aquí
-          setProduct(result.producto); // ← Y aquí
+          const productData = await response.json(); //
+          setProduct(productData);
           
-          // Cargar productos relacionados de la misma colección
-          const relatedResponse = await fetch(`http://localhost:5000/api/productos?coleccion=${collectionType}`);
-          if (relatedResponse.ok) {
-            const relatedResult = await relatedResponse.json(); // ← Cambiado aquí
-            loadRelatedProducts(result.producto, relatedResult.productos); // ← Y aquí
+        
+          const allProductsResponse = await fetch('http://localhost:3000/api/productos');
+          if (allProductsResponse.ok) {
+            const allProducts = await allProductsResponse.json();
+            loadRelatedProducts(productData, allProducts); //
           }
         } else {
           loadProductFromLocalStorage();
@@ -79,13 +79,26 @@ const DetalleProducto = () => {
   const loadRelatedProducts = (currentProduct, allProducts) => {
     if (!allProducts || allProducts.length === 0) return;
     
+    
     const related = allProducts
-      .filter(p => 
-        (p.idProducto != currentProduct.idProducto && 
-         p.id != currentProduct.id)
-      )
+      .filter(p => {
+        const productId1 = currentProduct.idProducto || currentProduct.id;
+        const productId2 = p.idProducto || p.id;
+        
+        // Excluir el producto actual
+        if (productId1 == productId2) return false;
+        
+        // Si hay colección, filtrar por misma colección
+        if (currentProduct.coleccion && p.coleccion) {
+          return currentProduct.coleccion === p.coleccion;
+        }
+        
+        // Si no hay colección, mostrar cualquier producto relacionado
+        return true;
+      })
       .sort(() => 0.5 - Math.random())
       .slice(0, 3);
+      
     setRelatedProducts(related);
   };
 
@@ -102,24 +115,24 @@ const DetalleProducto = () => {
     setActiveAccordion(activeAccordion === index ? null : index);
   };
 
-  // Agregar al carrito - SOLO BACKEND
+  // Agregar al carrito
   const agregarAlCarrito = async () => {
     if (!product) return;
 
     const cartItem = {
-      id: product.idProducto || product.id,
-      nombre: product.nombreProducto || product.name,
+      id: product.id_producto || product.idProducto || product.id,
+      nombre: product.nombre_producto || product.nombreProducto || product.name,
       precio: product.precio || product.price,
-      imagen: product.imagenUrl || product.image,
+      imagen: product.imagen_url || product.imagenUrl || product.image,
       cantidad: quantity,
-      coleccion: collectionType
+      coleccion: product.coleccion || collectionType
     };
 
     console.log('Enviando al carrito:', cartItem);
 
     try {
-      // Enviar SOLO al backend
-      const response = await fetch('http://localhost:5000/api/carrito/agregar', {
+     
+      const response = await fetch('http://localhost:3000/api/carrito/agregar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -185,7 +198,7 @@ const DetalleProducto = () => {
       <Header />
       
       <div className="product-detail-container">
-        {/* Breadcrumb */}
+        
         <div className="breadcrumb">
           <Link to="/">Menu</Link>
           <span> / </span>
@@ -197,8 +210,8 @@ const DetalleProducto = () => {
           <div className="product-image-section">
             <div className="main-product-image">
               <img 
-                src={product.imagenUrl || product.image} 
-                alt={product.nombreProducto || product.name}
+                src={product.imagen_url || product.imagenUrl || product.image} 
+                alt={product.nombre_producto || product.nombreProducto || product.name}
                 onError={(e) => e.target.src = '/images/placeholder-product.jpg'}
               />
             </div>
@@ -210,7 +223,9 @@ const DetalleProducto = () => {
               <div className="product-category tracking-wide text-sm">
                 {collectionType?.toUpperCase() || 'COLECCIÓN'}
               </div>
-              <h1 className="product-title text-serif">{product.nombreProducto || product.name}</h1>
+              <h1 className="product-title text-serif">
+                {product.nombre_producto || product.nombreProducto || product.name}
+              </h1>
             </div>
 
             <div className="product-price">${product.precio || product.price}</div>
@@ -289,19 +304,21 @@ const DetalleProducto = () => {
             <div className="related-products-grid">
               {relatedProducts.map(relatedProduct => (
                 <div 
-                  key={relatedProduct.idProducto || relatedProduct.id} 
+                  key={relatedProduct.id_producto || relatedProduct.idProducto || relatedProduct.id} 
                   className="related-product-card"
-                  onClick={() => navigate(`/product/${collectionType}/${relatedProduct.idProducto || relatedProduct.id}`)}
+                  onClick={() => navigate(`/product/${collectionType}/${relatedProduct.id_producto || relatedProduct.idProducto || relatedProduct.id}`)}
                 >
                   <div className="related-product-image">
                     <img 
-                      src={relatedProduct.imagenUrl || relatedProduct.image} 
-                      alt={relatedProduct.nombreProducto || relatedProduct.name}
+                      src={relatedProduct.imagen_url || relatedProduct.imagenUrl || relatedProduct.image} 
+                      alt={relatedProduct.nombre_producto || relatedProduct.nombreProducto || relatedProduct.name}
                       onError={(e) => e.target.src = '/images/placeholder-product.jpg'}
                     />
                   </div>
                   <div className="related-product-info">
-                    <h4 className="text-serif">{relatedProduct.nombreProducto || relatedProduct.name}</h4>
+                    <h4 className="text-serif">
+                      {relatedProduct.nombre_producto || relatedProduct.nombreProducto || relatedProduct.name}
+                    </h4>
                     <p className="related-product-price">$ {relatedProduct.precio || relatedProduct.price}</p>
                   </div>
                 </div>
