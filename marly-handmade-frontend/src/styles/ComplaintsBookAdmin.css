@@ -1,0 +1,133 @@
+/* Layout principal */
+.complaints-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* Sidebar fijo a la izquierda (si aplica) */
+.complaints-sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  background-color: #fff;
+  border-right: 1px solid #e0e0e0;
+}
+
+/* Contenido principal */
+.complaints-main {
+  flex: 1;
+  padding: 40px;
+  background-color: #fff;
+  box-shadow: 0px 6px 50px -30px rgba(0, 0, 0, 0.61);
+  border-radius: 0 12px 12px 0;
+}
+
+/* Encabezado */
+.complaints-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.complaints-title {
+  font-size: 34px;
+  font-weight: bold;
+  color: #040F2F;
+  font-family: 'Irian Serif', serif;
+  margin: 0;
+}
+
+/* Tabla */
+.complaints-table-wrapper {
+  overflow-x: auto;
+}
+
+.complaints-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.complaints-table th,
+.complaints-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.complaints-table th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+  color: #444;
+}
+
+.complaints-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* Estados */
+.complaints-loading,
+.complaints-error,
+.complaints-empty {
+  text-align: center;
+  margin-top: 100px;
+  font-size: 18px;
+  font-family: 'Inter', sans-serif;
+  color: #666;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .complaints-main {
+    padding: 20px;
+    border-radius: 0;
+  }
+
+  .complaints-title {
+    font-size: 30px;
+    margin-bottom: 20px;
+  }
+
+  .complaints-table th,
+  .complaints-table td {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .complaints-title {
+    font-size: 26px;
+  }
+
+  .complaints-table th,
+  .complaints-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
+.complaints-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #ddd; 
+}
+
+.complaints-table th,
+.complaints-table td {
+  padding: 14px 18px;
+  border: 1px solid #ddd; 
+  text-align: left;
+}

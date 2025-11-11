@@ -1,0 +1,139 @@
+/* 🛒 Estilos actualizados para CartItems (versión azul oscuro) */
+
+.cart-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  background: #040F2F; /* azul marino oscuro */
+  border: 1px solid #040F2F;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  padding: 1rem;
+  width: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  color: #040F2F;
+}
+
+.cart-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.cart-item-img {
+  width: 160px;
+  height: 160px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+  border: 2px solid #d0d0d0;
+  box-shadow: 0 0 8px rgba(172, 172, 172, 0.6);
+}
+
+.cart-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.cart-item-info h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #040F2F;
+}
+
+.cart-item-info p {
+  margin: 0;
+  color: #040F2F;
+  font-weight: 500;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+}
+
+.quantity-controls button {
+  background-color: #040F2F;
+  color: #fff;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.quantity-controls button:hover {
+  background-color: #040F2F;
+  transform: scale(1.05);
+}
+
+.quantity-controls span {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #040F2F;
+}
+
+.remove-btn {
+  margin-top: 0.4rem;
+  background: #040F2F;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.remove-btn:hover {
+  background: #040F2F;
+  transform: scale(1.03);
+}
+
+/* 🛍️ Estado vacío */
+.empty-cart {
+  text-align: center;
+  padding: 2rem;
+  color: #cdd4f5;
+}
+
+.empty-cart i {
+  font-size: 3rem;
+  color: #040F2F;
+}
+
+.continue-shopping-btn {
+  display: inline-block;
+  margin-top: 1rem;
+  background-color: #040F2F;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.continue-shopping-btn:hover {
+  background-color: #040F2F;
+}
+
+.remove-btnCart{
+  background-color: #363636 !important;
+  border-radius: 10px !important;
+}

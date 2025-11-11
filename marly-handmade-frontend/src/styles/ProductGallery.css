@@ -1,0 +1,236 @@
+/* Layout principal */
+.gallery-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* Sidebar fijo a la izquierda */
+.gallery-sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  background-color: #fff;
+  border-right: 1px solid #e0e0e0;
+}
+
+/* Contenido principal */
+.gallery-main {
+  flex: 1;
+  padding: 40px;
+  background-color: #fff;
+  box-shadow: 0px 6px 50px -30px rgba(0, 0, 0, 0.61);
+  border-radius: 0 12px 12px 0;
+}
+
+/* Encabezado */
+.gallery-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.gallery-title {
+  font-size: 34px;
+  font-weight: bold;
+  color: #040F2F;
+  font-family: 'Irian Serif', serif;
+  margin: 0;
+}
+
+.gallery-button {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+}
+
+.gallery-button:hover {
+  background-color: #333;
+}
+
+/* Filtros */
+.gallery-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.gallery-filters input,
+.gallery-filters select {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 18px;
+  font-family: 'Inter', sans-serif;
+  min-width: 180px;
+  flex: 1;
+}
+
+/* Galería de productos */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.gallery-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Imágenes */
+.gallery-image,
+.gallery-placeholder {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.gallery-placeholder {
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Texto de producto */
+.gallery-name {
+  font-size: 16px;
+  margin: 10px 0;
+  color: #333;
+  font-weight: 500;
+}
+
+.gallery-description {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.gallery-price {
+  font-size: 14px;
+  font-weight: bold;
+  color: #0066cc;
+  margin-bottom: 5px;
+}
+
+.gallery-category {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 5px;
+}
+
+/* Footer de tarjeta */
+.gallery-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.gallery-stock {
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.gallery-stock.low {
+  background-color: #fff3cd;
+}
+
+.gallery-stock.ok {
+  background-color: #d4edda;
+}
+
+.gallery-edit-button {
+  background-color: #000;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+}
+
+.gallery-edit-button:hover {
+  background-color: #333;
+}
+
+/* Cargando */
+.gallery-loading {
+  text-align: center;
+  margin-top: 100px;
+  font-size: 18px;
+  font-family: 'Inter', sans-serif;
+  color: #666;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .gallery-main {
+    padding: 20px;
+    border-radius: 0;
+  }
+
+  .gallery-title {
+    font-size: 30px;
+    margin-bottom: 20px;
+  }
+
+  .gallery-filters input,
+  .gallery-filters select {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .gallery-edit-button {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-title {
+    font-size: 26px;
+  }
+
+  .gallery-filters input,
+  .gallery-filters select {
+    font-size: 15px;
+    padding: 8px;
+  }
+
+  .gallery-edit-button {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+}
+.gallery-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.gallery-grid::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.gallery-grid::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+

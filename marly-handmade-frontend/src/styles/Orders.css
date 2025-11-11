@@ -1,0 +1,133 @@
+/* Layout general */
+.orders-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.orders-main {
+  flex: 1;
+  padding: 40px;
+  background-color: #fff;
+  box-shadow: 0px 6px 50px -30px rgba(0, 0, 0, 0.61);
+  border-radius: 0 12px 12px 0;
+}
+
+/* Encabezado */
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.orders-title {
+  font-size: 34px;
+  font-weight: bold;
+  color: #040F2F;
+  font-family: 'Irian Serif', serif;
+  margin: 0;
+}
+
+/* Tabla */
+.orders-table-wrapper {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  margin-bottom: 30px;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.orders-table th,
+.orders-table td {
+  padding: 14px;
+  font-size: 14px;
+  text-align: left;
+  color: #333;
+  font-family: 'Inter', sans-serif;
+  border-right: 1px solid #e0e0e0;
+}
+
+.orders-table th {
+  background-color: #f8f8f8;
+  font-weight: 500;
+  color: #666;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.orders-table th:last-child,
+.orders-table td:last-child {
+  border-right: none;
+}
+
+.even-row {
+  background-color: white;
+}
+
+.odd-row {
+  background-color: #fafafa;
+}
+
+/* Fila de detalles */
+.order-detail-header td {
+  background-color: #f0f0f0;
+  font-weight: 600;
+  color: #444;
+  font-size: 13px;
+}
+
+.order-detail-row td {
+  font-size: 13px;
+  color: #555;
+  border-top: 1px dashed #ddd;
+}
+
+/* Estados */
+.orders-loading,
+.orders-error,
+.orders-empty {
+  text-align: center;
+  margin-top: 100px;
+  font-size: 18px;
+  font-family: 'Inter', sans-serif;
+  color: #666;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .orders-main {
+    padding: 20px;
+    border-radius: 0;
+  }
+
+  .orders-title {
+    font-size: 30px;
+    margin-bottom: 20px;
+  }
+
+  .orders-table th,
+  .orders-table td {
+    padding: 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .orders-title {
+    font-size: 26px;
+  }
+
+  .orders-table th,
+  .orders-table td {
+    padding: 10px;
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,85 @@
+.image-uploads {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 500px;
+}
+
+/* === Label contenedor principal === */
+.image-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #d1d5db; /* gris suave */
+  border-radius: 10px;
+  background-color: #f9fafb;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  overflow: hidden;
+}
+
+.image-upload:hover {
+  background-color: #f3f4f6;
+}
+
+/* Ocultar input nativo */
+.image-upload input {
+  display: none;
+}
+
+/* Imagen principal cuadrada */
+.image-upload.main {
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1 / 1; /* cuadrado perfecto */
+  margin: 0 auto;
+}
+
+/* Imagen dentro del label */
+.image-upload img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* SVG */
+.image-upload svg {
+  width: 48px;
+  height: 48px;
+  color: #9ca3af;
+  margin-bottom: 10px;
+}
+
+/* Texto */
+.image-upload span {
+  color: #4b5563;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* === Imágenes adicionales === */
+.extra-images {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.image-upload.small {
+  padding: 16px;
+
+  aspect-ratio: 1 / 1; /* también cuadradas */
+}
+
+.image-upload.small svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 5px;
+}
+
+.image-upload.small span {
+  font-size: 0.8rem;
+  color: #6b7280;
+}

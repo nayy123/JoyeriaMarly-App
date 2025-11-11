@@ -1,0 +1,136 @@
+.content-Product-Select{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 50px;
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.Img-Product {
+    flex: 1;
+    max-width: 550px;
+}
+
+.Img-Product img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+.product-details-content {
+    flex: 1;
+    max-width: 400px;
+    padding-top: 5px;
+}
+
+
+.Sub-Name-Product {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.Name-Producto {
+    font-size: 28px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.product-price {
+    font-size: 22px;
+    font-weight: 500;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.product-variant-name {
+    font-size: 16px;
+    font-weight: 400;
+    color: #495057;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.amaunt-select {
+    width: 120px;
+    height: 45px; 
+    margin-bottom: 15px;
+    border: 1px solid #5A7690; 
+    border-radius: 5px; 
+    display: flex; 
+    align-items: center;
+    justify-content: space-between; 
+    padding: 0; 
+}
+
+.amaunt-select button {
+    background: transparent; 
+    border: none;
+    cursor: pointer;
+    color: #5A7690;
+    font-size: 18px;
+    font-weight: 500;
+    padding: 0 10px; 
+    height: 100%; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content button {
+    padding: 12px 20px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    width: 100%; 
+}
+
+.button-add-to-cart{
+    background-color: rgb(255, 255, 255);
+    color: #5A7690;
+    border: 2px solid #5A7690;
+    border-radius: 5px;
+}
+
+.button-buy-now {
+    background-color: #1B2A40;
+    color: #F5E3C3;
+    border-radius: 5px;
+}
+
+.product-detail-accordion {
+    font-size: 16px;
+    font-weight: 500;
+    color: #5A7690;
+    padding: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-detail-accordion::after {
+    font-size: 20px;
+    font-weight: 300;
+}
+
+
+@media (max-width: 992px) {
+    section {
+        flex-direction: column;
+        gap: 30px;
+        align-items: center;
+    }
+
+    .Img-Product, .product-details-content {
+        max-width: 90%;
+    }
+}
