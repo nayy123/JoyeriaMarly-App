@@ -1,11 +1,12 @@
-/* Contenedor principal */
+/* Contenedor general */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: flex-start;
   padding-top: 60px;
   min-height: 90vh;
-  background-color: #fff;
+  background-color: #f1f1f1;
+  animation: fadeIn 1s ease-out;
 }
 
 /* Caja del formulario */
@@ -15,127 +16,114 @@
   background-color: #fff;
   box-shadow: 0 10px 12px rgba(0, 0, 0, 0.1);
   border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Título */
-.login-title {
-  text-align: center;
-  font-size: 44px;
-  font-weight: bold;
-  color: #040f2f;
-  margin-bottom: 60px;
-  font-family: "Irian Serif", serif;
+/* Efecto Hover en la caja del formulario */
+.login-box:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* Formularios */
-.login-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* Animación de Fade-in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.form-group-login,
-.password-group {
-  max-width: 425px;
-  width: 100%;
-  margin-bottom: 16px;
+/* Animación para la selección de roles */
+.role-selection-enter {
+  opacity: 0;
+  transform: translateY(-30px);
 }
 
-.input-wrapper-login {
-  position: relative;
-  display: flex;
-  align-items: center;
+.role-selection-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 500ms, transform 500ms;
 }
 
-.input-wrapper-login input,
-.login-form input {
-  width: 100%;
-  padding: 12px;
-  padding-right: 40px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 24px;
-  outline: none;
+.role-selection-exit {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.login-form input:focus {
-  border-color: #000;
+.role-selection-exit-active {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 500ms, transform 500ms;
 }
 
-/* Botón */
+/* Animación para el formulario */
+.form-transition-enter {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.form-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 500ms, transform 500ms;
+}
+
+.form-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.form-transition-exit-active {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 500ms, transform 500ms;
+}
+
+/* Estilos de los botones */
 .login-btn {
   width: 100%;
-  max-width: 425px;
-  padding: 12px;
-  background-color: #000;
-  color: #fff;
-  font-size: 24px;
-  font-weight: 500;
-  border: none;
+  padding: 14px;
+  background-color: #2ecc71;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
-  margin: 10px auto 0;
-  font-family: "Inter", sans-serif;
+  transition: transform 0.3s ease;
 }
 
 .login-btn:hover {
-  background-color: #333;
+  transform: translateY(-5px);
 }
 
-/* Links inferiores */
-.login-links,
-.form-links {
-  text-align: center;
+.login-btn:active {
+  transform: translateY(2px);
 }
 
-.login-links {
-  margin-top: 33px;
-}
-
-.form-links {
-  margin: 22px 0 32px;
-}
-
-.login-links a,
-.form-links a {
-  display: block;
-  font-size: 24px;
-  color: #1b2a40;
+/* Estilo de los enlaces */
+.login-links a {
+  color: #2c3e50;
+  font-size: 16px;
   text-decoration: none;
-  font-family: "Irian Serif", serif;
-  font-style: italic;
-  margin-bottom: 5px;
+  margin-top: 10px;
 }
 
-.login-links a:hover,
-.form-links a:hover {
+.login-links a:hover {
   text-decoration: underline;
-}
-
-/* Icono de contraseña */
-.toggle-password-login {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: #555;
-  cursor: pointer;
 }
 
 /* Mensaje de error */
 .error-message {
-  height: 20px;
-  margin-top: 4px;
-  font-size: 16px;
   color: red;
-  line-height: 20px;
-  text-align: left;
+  font-size: 16px;
+  margin-top: 5px;
 }
 
-/* Responsivo */
+/* Responsive */
 @media (max-width: 768px) {
   .login-box {
     padding: 20px;
@@ -143,31 +131,17 @@
 
   .login-title {
     font-size: 32px;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
   }
 
-  .login-form input,
-  .input-wrapper-login input,
-  .login-btn,
-  .form-links a,
-  .login-links a {
-    font-size: 18px;
+  .login-form input {
+    font-size: 16px;
     padding: 10px;
   }
 
-  .toggle-password-login {
-    font-size: 18px;
-    right: 10px;
-  }
-
-  .error-message {
-    font-size: 14px;
-    height: 18px;
-    line-height: 18px;
-  }
-
-  .login-container {
-    padding-top: 40px;
+  .login-btn {
+    font-size: 16px;
+    padding: 12px;
   }
 }
 
@@ -177,26 +151,33 @@
   }
 
   .login-form input,
-  .input-wrapper-login input,
-  .login-btn,
-  .form-links a,
-  .login-links a {
-    font-size: 16px;
+  .login-btn {
+    font-size: 14px;
     padding: 8px;
   }
-
-  .toggle-password-login {
-    font-size: 16px;
-    right: 8px;
-  }
-
-  .error-message {
-    font-size: 13px;
-    height: 16px;
-    line-height: 16px;
-  }
-
-  .login-container {
-    padding-top: 30px;
-  }
 }
+/* Separación de los enlaces inferiores */
+.login-links a + a { margin-left: 16px; }
+
+/* Ojo de contraseña un poco más lejos del borde */
+.toggle-password-login { right: 16px; }
+
+/* Badge del rol + cambiar rol */
+.role-badge {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; max-width: 425px; margin-bottom: 10px; font-size: 14px;
+}
+.change-role {
+  background: none; border: none; color: #1B2A40; cursor: pointer; text-decoration: underline;
+}
+
+/* Animaciones */
+.role-selection-enter { opacity: 0; transform: translateY(10px); }
+.role-selection-enter-active { opacity: 1; transform: translateY(0); transition: opacity .4s ease, transform .4s ease; }
+.role-selection-exit { opacity: 1; transform: translateY(0); }
+.role-selection-exit-active { opacity: 0; transform: translateY(-8px); transition: opacity .3s ease, transform .3s ease; }
+
+.form-transition-enter { opacity: 0; transform: scale(.98); }
+.form-transition-enter-active { opacity: 1; transform: scale(1); transition: opacity .4s ease, transform .4s ease; }
+.form-transition-exit { opacity: 1; transform: scale(1); }
+.form-transition-exit-active { opacity: 0; transform: scale(.98); transition: opacity .3s ease, transform .3s ease; }

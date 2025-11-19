@@ -10,6 +10,7 @@ import CollectionDetail from "./pages/CollectionDetail";
 import RecoverPassword from "./pages/RecoverPassword";
 import Product from "./pages/Product";
 import ConfirmNewPassword from "./pages/ConfirnNewPassword";
+import AdminView from './pages/AdminView';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/terms-conditions" element={<TermsConditions />} />
         <Route path="/collection-detail" element={<CollectionDetail />} />
         <Route path="/recover-password" element={<RecoverPassword />} />
+        <Route path="/admin" element={<AdminView />} />
         <Route path="/product" element={<Product />} />
         <Route
           path="/confirm-new-password/:token"

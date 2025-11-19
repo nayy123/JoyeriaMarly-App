@@ -1,0 +1,142 @@
+/* Contenedor principal */
+.admin-container {
+  padding: 40px;
+  background: linear-gradient(145deg, #f3f4f6, #ffffff);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+.dashboard-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #1b2a40;
+  margin-bottom: 30px;
+  text-align: center;
+  animation: slideInTop 1s ease-in-out;
+}
+
+/* Animación de fadeIn */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Animación de slideInTop */
+@keyframes slideInTop {
+  0% {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Contenedor de botones */
+.dashboard-buttons {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Estilos generales para los botones */
+.btn-admin {
+  background-color: #040f2e;
+  color: white;
+  padding: 15px 25px;
+  font-size: 1.2rem;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 8px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  font-weight: bold;
+}
+
+.btn-admin:hover {
+  background-color: #1b2a40;
+  transform: translateY(-5px);
+}
+
+/* Efectos para cada botón con colores diferentes */
+.btn-products {
+  background-color: #5cb85c;
+  animation: bounceIn 1s ease;
+}
+
+.btn-products:hover {
+  background-color: #4cae4c;
+}
+
+.btn-customers {
+  background-color: #f0ad4e;
+  animation: bounceIn 1.2s ease;
+}
+
+.btn-customers:hover {
+  background-color: #ec971f;
+}
+
+.btn-invoices {
+  background-color: #d9534f;
+  animation: bounceIn 1.4s ease;
+}
+
+.btn-invoices:hover {
+  background-color: #c9302c;
+}
+
+.btn-reports {
+  background-color: #0275d8;
+  animation: bounceIn 1.6s ease;
+}
+
+.btn-reports:hover {
+  background-color: #025aa5;
+}
+
+/* Animación de bounceIn */
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* Botón de Logout */
+.logout-container {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-logout {
+  background-color: #e74c3c;
+  color: white;
+  padding: 12px 20px;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-logout:hover {
+  background-color: #c0392b;
+  transform: translateY(-5px);
+}
